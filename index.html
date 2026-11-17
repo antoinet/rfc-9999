@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RFC 9999 — CVSS-20: A Modest Proposal for More Criticality</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #111;
+      --muted: #555;
+      --rule: #999;
+      --paper: #fff;
+      --link: #0645ad;
+    }
+
+    body {
+      max-width: 54rem;
+      margin: 2rem auto;
+      padding: 0 1.5rem 4rem;
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.55 Georgia, "Times New Roman", serif;
+    }
+
+    a { color: var(--link); }
+    header { font-family: Arial, Helvetica, sans-serif; }
+
+    .rfc-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .rfc-meta p { margin: 0; }
+    .label { color: var(--muted); }
+
+    h1 {
+      margin: 2rem 0 0.25rem;
+      font-size: 1.8rem;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin: 0 0 1.5rem;
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    .notice {
+      border: 2px solid #8b1e1e;
+      padding: 0.8rem 1rem;
+      margin: 1.5rem 0;
+      color: #681616;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin-top: 2rem;
+      padding-bottom: 0.2rem;
+      border-bottom: 1px solid var(--rule);
+      font-size: 1.25rem;
+    }
+
+    h3 { margin-top: 1.5rem; font-size: 1.05rem; }
+
+    .abstract {
+      margin: 2rem 0;
+      padding: 0 1.5rem;
+    }
+
+    .abstract h2 {
+      margin-top: 0;
+      border: 0;
+      text-align: center;
+    }
+
+    nav ol { padding-left: 1.5rem; }
+    nav li { margin: 0.25rem 0; }
+
+    pre {
+      overflow-x: auto;
+      padding: 0.8rem 1rem;
+      background: #f4f4f4;
+      border-left: 3px solid #bbb;
+      font: 0.9rem/1.45 "Courier New", Courier, monospace;
+    }
+
+    .boilerplate {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--rule);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media print {
+      body { max-width: none; margin: 0; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="rfc-meta">
+      <p>
+        <span class="label">Network Working Group</span><br>
+        Standards Desk
+      </p>
+      <p>
+        <span class="label">Request for Comments:</span> 9999<br>
+        <span class="label">Category:</span> Informational<br>
+        <span class="label">ISSN:</span> 2070-1721
+      </p>
+    </div>
+
+    <h1>CVSS-20: A Modest Proposal for More Criticality</h1>
+    <p class="subtitle">Extending the Common Vulnerability Scoring System to 20.0</p>
+
+  </header>
+
+  <main>
+    <section class="abstract" aria-labelledby="abstract-heading">
+      <h2 id="abstract-heading">Abstract</h2>
+      <p>
+        The Common Vulnerability Scoring System (CVSS) currently expresses
+        severity on a scale whose maximum score is 10.0. In practice, this
+        ceiling can leave insufficient numerical space to distinguish between
+        vulnerabilities that are critical and vulnerabilities that are,
+        informally speaking, <em>really, really</em> critical.
+      </p>
+      <p>
+        This document proposes CVSS-20, an extension of the scale to 20.0. It
+        illustrates the temptation to address prioritisation noise by enlarging
+        a score range rather than improving how scores are interpreted and used.
+      </p>
+    </section>
+
+    <nav aria-label="Table of Contents">
+      <h2>Table of Contents</h2>
+      <ol>
+        <li><a href="#status">Status of This Memo</a></li>
+        <li><a href="#conventions">Conventions and Terminology</a></li>
+        <li><a href="#motivation">Motivation</a></li>
+        <li><a href="#proposal">The Proposed Extension</a></li>
+        <li><a href="#compatibility">Backward Compatibility</a></li>
+        <li><a href="#security">Security Considerations</a></li>
+        <li><a href="#iana">IANA Considerations</a></li>
+        <li><a href="#acknowledgements">Acknowledgements</a></li>
+      </ol>
+    </nav>
+
+    <section id="status">
+      <h2>1. Status of This Memo</h2>
+      <p>
+        This document is an unofficial proposal. It is not an RFC, is not
+        endorsed by FIRST or the CVSS Special Interest Group, and does not
+        modify any version of CVSS. Distribution is unlimited, provided this
+        notice is retained.
+      </p>
+    </section>
+
+    <section id="conventions">
+      <h2>2. Conventions and Terminology</h2>
+      <p>
+        The key words <strong>MUST</strong>, <strong>MUST NOT</strong>,
+        <strong>REQUIRED</strong>, <strong>SHOULD</strong>, <strong>SHOULD
+        NOT</strong>, and <strong>MAY</strong> in this document are to be
+        interpreted as described in RFC 2119. Their use here creates no actual
+        requirements.
+      </p>
+    </section>
+
+    <section id="motivation">
+      <h2>3. Motivation</h2>
+      <p>
+        Operators have occasionally observed that several vulnerabilities
+        receive the maximum severity score. This can make it difficult to
+        identify which maximum-scored vulnerability should receive attention
+        first.
+      </p>
+      <p>
+        Rather than improve prioritisation with additional context—such as
+        exposure, exploitability in the relevant environment, available
+        mitigations, and business impact—this proposal takes the direct route:
+        add more numbers.
+      </p>
+    </section>
+
+    <section id="proposal">
+      <h2>4. The Proposed Extension</h2>
+      <p>
+        A conforming CVSS-20 implementation would accept scores in the range
+        0.0 through 20.0, inclusive. Existing scores would be retained, with
+        additional headroom reserved for increasingly emphatic descriptions.
+      </p>
+
+      <pre>
+0.0–3.9   Low
+4.0–6.9   Medium
+7.0–8.9   High
+9.0–10.0  Critical
+10.1–15.0 Really Critical
+15.1–19.9 Extremely, Exceptionally Critical
+20.0      Please Wake Up the CISO</pre>
+
+      <p>
+        Scores above 10.0 <strong>SHOULD</strong> be accompanied by at least
+        one exclamation mark in executive summaries. A score of 20.0
+        <strong>MAY</strong> be accompanied by a red banner, an urgent calendar
+        invitation, or both.
+      </p>
+    </section>
+
+    <section id="compatibility">
+      <h2>5. Backward Compatibility</h2>
+      <p>
+        Existing CVSS scores remain valid. A score of 10.0 retains its original
+        meaning, except that it is no longer the maximum. Systems that cannot
+        display scores greater than 10.0 <strong>MAY</strong> render them as
+        “10.0+” and <strong>SHOULD</strong> look concerned.
+      </p>
+    </section>
+
+    <section id="security">
+      <h2>6. Security Considerations</h2>
+      <p>
+        A larger score range does not, by itself, make vulnerability
+        prioritisation more accurate. It may instead create a new upper-bound
+        arms race, in which all sufficiently important vulnerabilities quickly
+        converge on 20.0.
+      </p>
+      <p>
+        Readers are therefore reminded that severity scores are not a substitute
+        for context-aware risk assessment or sound remediation decisions.
+      </p>
+    </section>
+
+    <section id="iana">
+      <h2>7. IANA Considerations</h2>
+      <p>This document has no IANA actions.</p>
+    </section>
+
+    <section id="acknowledgements">
+      <h2>8. Acknowledgements</h2>
+      <p>
+        The author thanks everyone who has ever had to explain why “Critical”
+        does not automatically mean “fix this before lunch.”
+      </p>
+    </section>
+
+    <section class="boilerplate">
+      <h2>Author’s Address</h2>
+      <p>Standards Desk<br>
+      Somewhere on the Internet</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Copyright (c) The Standards Desk. All rights reserved.</p>
+    <p>
+      This mock document is not affiliated with the IETF, FIRST, or the CVSS
+      SIG.
+    </p>
+  </footer>
+</body>
+</html>
